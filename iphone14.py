@@ -1,5 +1,5 @@
 import json
-
+import os
 import requests
 
 
@@ -19,6 +19,7 @@ def getphones():
 
 
 def main():
+    slackurl = os.getenv("slackhook")
     phonesdict = getphones()
     pickupmessage = phonesdict["body"]["PickupMessage"]
     stores = pickupmessage["stores"]
@@ -30,8 +31,13 @@ def main():
                 proddetail = partdetail["messageTypes"]["regular"]
                 prodname = proddetail["storePickupProductTitle"]
                 storequote = proddetail["storePickupQuote"]
-                print(f'{prodname} ({part}) - {storequote}')
 
+                phonetext = f'{prodname} ({part}) - {storequote}'
+                data = '{"text" : "' + phonetext + '"}'
+                response = requests.post(url=slackurl, data=data)
+
+
+                print(phonetext)
 
 if __name__ == '__main__':
     main()
