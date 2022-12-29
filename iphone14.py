@@ -23,6 +23,7 @@ def main():
     phonesdict = getphones()
     pickupmessage = phonesdict["body"]["PickupMessage"]
     stores = pickupmessage["stores"]
+    slackmsg = ''
     for store in stores:
         partsavailability = store["partsAvailability"]
         for part in partsavailability:
@@ -31,13 +32,15 @@ def main():
                 proddetail = partdetail["messageTypes"]["regular"]
                 prodname = proddetail["storePickupProductTitle"]
                 storequote = proddetail["storePickupQuote"]
+                phonetext = f'{prodname} - {storequote}'
+                if prodname.startswith("iPhone 14 Pro 1TB"):
+                    slackmsg += phonetext + "\n"
+    if len(slackmsg) > 0:
+        data = '{"text" : "' + slackmsg + '"}'
+        response = requests.post(url=slackurl, data=data)
 
-                phonetext = f'{prodname} ({part}) - {storequote}'
-                data = '{"text" : "' + phonetext + '"}'
-                response = requests.post(url=slackurl, data=data)
+    print(slackmsg)
 
-
-                print(phonetext)
 
 if __name__ == '__main__':
     main()
